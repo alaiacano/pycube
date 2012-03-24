@@ -106,28 +106,18 @@ def flush(flush_type, times=None):
         )
     
 
-def parse_act_social(line):
+def parse_actions(line):
     """
     Parses a line from the act_social log and returns an object
     with the values of interest.
     """
-    ts, action, page, user_id, geo, lang, to_blog = line.strip().split("\t")
+    line = line.strip().split("\t")
     strip_ascii = lambda x: unicode(x).encode('ascii','ignore')
     data = {
-        'action': int(action),
-        'page'  : page,
-        'lang'  : lang,
-        'to_blog' : int(to_blog),
+        'act': int(line[1]),
+        'to' : int(line[6]),
         'time'  : datetime.datetime.fromtimestamp(int(ts))
     }
-    try:
-        data['user_id'] = int(user_id)
-    except ValueError:
-        data['user_id'] = -1
-    try:
-        data['geo'] = (lambda x: "XX~XX-XX" if x=="COUNTRY~CITY" else strip_ascii(x))(geo),
-    except:
-        print geo
     return data
     
     
@@ -140,7 +130,7 @@ def main():
         line = sys.stdin.readline().strip()
         if line.strip()=="":
             continue
-        data = parse_act_social(line)
+        data = parse_actions(line)
         if data['action'] == 1:
             update_cube('follows', data)
         
