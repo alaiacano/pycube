@@ -4,10 +4,7 @@ This is a module with tools for putting streaming log data into cube.
 """
 import sys, datetime, pymongo
 from tiers import *
-
-HTTP_HOST = '127.0.0.1'
-DB_CONN = pymongo.Connection(HTTP_HOST).cube_development
-COLLECTIONS = DB_CONN.collection_names()
+from config import *
 
 
 def new_type(type_name):
@@ -62,6 +59,8 @@ def update_cube(type_name, data):
     """
     events = "%s_events" % type_name
     metrics = "%s_metrics" % type_name
+    
+    # make sure these collections exist
     assert (events in COLLECTIONS) and (metrics in COLLECTIONS)
     
     insert_dict = {}
@@ -79,39 +78,28 @@ def update_cube(type_name, data):
     
     DB_CONN[events].insert(insert_dict)
 
-def flush(flush_type):
+def flush(flush_type, times=None):
     """
-    flushes the collection. Ported from the following JavaScript:
-    // Invalidate cached metrics.
-    endpoint.flush = function() {
-      var types = [];
-      for (var type in flushTypes) {
-        var metrics = collection(type).metrics,
-            times = flushTypes[type];
-        types.push(type);
-        for (var tier in tiers) {
-          var floor = tiers[tier].floor;
-          metrics.update({
-            i: false,
-            "_id.l": +tier,
-            "_id.t": {
-              $gte: floor(times[0]),
-              $lte: floor(times[1])
-            }
-          }, invalidate, multi);
-        }
-      }
-      if (types.length) util.log("flush " + types.join(", "));
-      flushTypes = {};
-    };
-
-    flushInterval = setInterval(endpoint.flush, flushDelay);
+    flushes the collection. Ported from 
+    https://github.com/square/cube/blob/master/lib/cube/server/event.js
     """
+    flush_type += "_metrics"
+    
     coll = DB_CONN[flush_type]
-    coll.update({
-        'i' : False,
-        '_id.l' : ,
-    })
+    for tier in TIERS:
+        floor = TIERS[tier]['floor']
+        coll.update(
+            {
+                'i' : False,
+                '_id.l' : tier,
+                '_id.t' : {
+                    '$lte' : floor(datetime.datetime.now()),
+                    }
+            },
+            {'$set' : {'i' : True}},
+            invalidate = True,
+            multi = True
+        )
     
 
 def parse_act_social(line):
@@ -127,14 +115,13 @@ def parse_act_social(line):
         'lang'  : lang,
         'to_blog' : int(to_blog),
         'time'  : datetime.datetime.fromtimestamp(int(ts))
-        # 'user_id' : (lambda x: int(x) if x != "GO_UUID" else -1)(user_id),
     }
     try:
         data['user_id'] = int(user_id)
     except ValueError:
         data['user_id'] = -1
     try:
-        data['geo'] = (lambda x: "XX~XX-XX" if x=="COUNTRY~CITY" else strip_ascii(x))(geo)[0],
+        data['geo'] = (lambda x: "XX~XX-XX" if x=="COUNTRY~CITY" else strip_ascii(x))(geo),
     except:
         print geo
     return data
