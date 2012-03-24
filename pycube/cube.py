@@ -70,6 +70,10 @@ def update_cube(type_name, data):
     except KeyError:
         insert_dict['t'] = datetime.datetime.now()
     
+    if '_id' in data:
+        insert_dict['_id'] = data['_id']
+        del(data['_id'])
+        
     # we must have a date format!
     assert type(insert_dict['t']).__name__ == 'datetime'
     
