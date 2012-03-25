@@ -6,14 +6,30 @@ This project is **EXTREMELY** early in its development. Nothing works yet at all
 
 ## Connecting to cube
 
-We'll probably need to know where mongodb and the cube `node` processes are running.
+First you need to get cube up and running. Follow the instructions [here](https://github.com/square/cube/wiki). For a simple example running on your local machine, you'll need to install everything they suggest, then run these commands:
+
+	cd cube
+	mongod &
+	node bin/collector.js &
+	node bin/evaluator.js &
+
+## Installing pycube
+
+This is how it SHOULD work.
+
+	sudo pip install pymongo
+	git clone git@github.com:alaiacano/pycube.git
+	cd pycube
+	sudo python setup.py install
+	
+I just have to make `setup.py` still.
 
 ## Creating a new `type`
 
 Each mongodb collection is referred to as a `type`. If you have a log file of a specific action, you're going to need to tell cube about it. I'd like that to work like this:
 
     import pycube
-	cube = pycube.Cube()
+	cube = pycube.Cube()             # the collector is running on 127.0.0.1 by default.
 	pycube.create_type('actions')
 	
 ## Logging actions
@@ -29,5 +45,3 @@ Now you want to fill it in. Inserting a new record should go like this:
 		},
 	}
 	cube.update(action)
-	
-# We'll see how it goes.
