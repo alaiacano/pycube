@@ -81,4 +81,4 @@ class Cube(object):
         {"status":200} responses.
         """
         data = re.sub('"', '\\"', '['+json.dumps(data)+']')
-        os.system('curl -X POST -d "%s" http://localhost:1080/1.0/event/put' % data)
+        os.system('curl -X POST -d "%s" http://%s:1080/1.0/event/put' % (data, self._host))
