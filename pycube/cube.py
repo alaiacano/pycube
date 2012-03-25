@@ -8,13 +8,15 @@ import os, json, re
 
 class Cube(object):
         
-    def __init__(self, host='127.0.0.1'):
+    def __init__(self, host='127.0.0.1', port = 1081 ):
         """
         A class for controlling the cube connection
         """
         self._host = host
+        self._port = port
         self._conn = pymongo.Connection(self._host).cube_development
         self._collections = self._conn.collection_names()
+        self.url = "http://%s:%s" % (self._host, self._port)
 
     def __del__(self):
         """
@@ -80,5 +82,13 @@ class Cube(object):
         TODO: do this without using os.system, or hide the
         {"status":200} responses.
         """
+        if not ('data' in data and 'data' in data):
+            raise Exception("Data object must have 'date' and 'data' fields.")
+            
+        if not 'time' in data:
+            data['time'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        elif isinstance(data['time'], datetime.datetime) or isinstance(data['time'], datetime.date):
+            data['time'] = data['time'].strftime("%Y-%m-%dT%H:%M:%S")
+            
         data = re.sub('"', '\\"', '['+json.dumps(data)+']')
         os.system('curl -X POST -d "%s" http://%s:1080/1.0/event/put' % (data, self._host))
