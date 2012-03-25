@@ -8,15 +8,15 @@ import os, json, re
 
 class Cube(object):
         
-    def __init__(self, host='127.0.0.1', port = 1081 ):
+    def __init__(self, host='127.0.0.1'):
         """
         A class for controlling the cube connection
         """
         self._host = host
-        self._port = port
+        self._port = 1080
         self._conn = pymongo.Connection(self._host).cube_development
         self._collections = self._conn.collection_names()
-        self.url = "http://%s:%s" % (self._host, self._port)
+        self.dashboard_url = "http://%s:1081" % self._host
 
     def __del__(self):
         """
@@ -91,4 +91,4 @@ class Cube(object):
             data['time'] = data['time'].strftime("%Y-%m-%dT%H:%M:%S")
             
         data = re.sub('"', '\\"', '['+json.dumps(data)+']')
-        os.system('curl -X POST -d "%s" http://%s:1080/1.0/event/put' % (data, self._host))
+        os.system('curl -X POST -d "%s" http://%s:%s/1.0/event/put' % (data, self._host, self._port))
