@@ -4,10 +4,10 @@ import pycube, sys, datetime
 def parse_actions(line):
     """
     Parses a line from a log file and returns an object
-    with the values of interest.
+    with the values of interest. I only want to record events
+    where the second field of the log file is 1.
     """
     line = line.strip().split("\t")
-    strip_ascii = lambda x: unicode(x).encode('ascii','ignore')
     if line[1] != "1":
         return None
     data = {
@@ -23,7 +23,7 @@ def main():
     Main.
     """
     cube = pycube.Cube()
-    # cube.new_type('follows')
+    cube.new_type('follows')
     while 1:
         line = sys.stdin.readline().strip()
         if line.strip()=="":
