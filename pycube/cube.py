@@ -2,137 +2,83 @@
 """
 This is a module with tools for putting streaming log data into cube.
 """
-import sys, datetime, pymongo
-from tiers import *
-from config import *
 
+import datetime, pymongo
+import os, json, re
 
-def new_type(type_name):
-    """
-    Configures mongo for a new cube type.
-    
-    new_type("growth")
-    
-    Returns True if it worked, False if it failed.
-    """
-    events = "%s_events" % type_name
-    metrics = "%s_metrics" % type_name
-    try:
-        DB_CONN.create_collection(events)
-        events_coll = DB_CONN[events]
-        events_coll.create_index('t')
-        DB_CONN.create_collection(metrics, {'capped': True, 'size': 1e7, 'autoIndexId': True})
-        metrics_coll = DB_CONN[metrics]
-        metrics_coll.create_index([
-            ("i", pymongo.ASCENDING),
-            ("_id.e", pymongo.ASCENDING),
-            ("_id.l", pymongo.ASCENDING),
-            ("_id.t", pymongo.ASCENDING)
-            ])
-        metrics_coll.create_index([
-            ("i", pymongo.ASCENDING),
-            ("_id.l", pymongo.ASCENDING),
-            ("_id.t", pymongo.ASCENDING)
-            ])
-    except:
-        return False
-    return True
-    
-    
-def update_cube(type_name, data):
-    """
-    Updates the collection in cube. Pass this the data object only,
-    and it will be correctly formatted and inserted into the database.
-    
-    The data dict should have a key called 'time'. If it doesn't the 
-    current time will be sent into cube.
-    
-    Example:
-    
-    
-    data = {
-    'time'  : datetime.datetime(2012, 3 24)
-    'count' : 40,
-    'key'   : 'users'
-    }
-    update_cube('testcollection', data)
-    """
-    events = "%s_events" % type_name
-    metrics = "%s_metrics" % type_name
-    
-    # make sure these collections exist
-    assert (events in COLLECTIONS) and (metrics in COLLECTIONS)
-    
-    insert_dict = {}
-    try:
-        insert_dict['t'] = data['time']
-        del(data['time'])
-    except KeyError:
-        insert_dict['t'] = datetime.datetime.now()
-    
-    if '_id' in data:
-        insert_dict['_id'] = data['_id']
-        del(data['_id'])
+class Cube(object):
         
-    # we must have a date format!
-    assert type(insert_dict['t']).__name__ == 'datetime'
-    
-    insert_dict['d'] = data
-    print events, insert_dict
-    
-    DB_CONN[events].insert(insert_dict)
+    def __init__(self, host='127.0.0.1'):
+        """
+        A class for controlling the cube connection
+        """
+        self._host = host
+        self._conn = pymongo.Connection(self._host).cube_development
+        self._collections = self._conn.collection_names()
 
-def flush(flush_type, times=None):
-    """
-    flushes the collection. Ported from 
-    https://github.com/square/cube/blob/master/lib/cube/server/event.js
-    """
-    flush_type += "_metrics"
-    
-    coll = DB_CONN[flush_type]
-    for tier in TIERS:
-        floor = TIERS[tier]['floor']
-        coll.update(
-            {
-                'i' : False,
-                '_id.l' : tier,
-                '_id.t' : {
-                    '$lte' : floor(datetime.datetime.now()),
-                    }
-            },
-            {'$set' : {'i' : True}},
-            invalidate = True,
-            multi = True
-        )
-    
-
-def parse_actions(line):
-    """
-    Parses a line from the act_social log and returns an object
-    with the values of interest.
-    """
-    line = line.strip().split("\t")
-    strip_ascii = lambda x: unicode(x).encode('ascii','ignore')
-    data = {
-        'act': int(line[1]),
-        'to' : int(line[6]),
-        'time'  : datetime.datetime.fromtimestamp(int(ts))
-    }
-    return data
-    
-    
-def main():
-    """
-    Main.
-    """
-    new_type('follows')
-    while 1:
-        line = sys.stdin.readline().strip()
-        if line.strip()=="":
-            continue
-        data = parse_actions(line)
-        if data['action'] == 1:
-            update_cube('follows', data)
+    def __del__(self):
+        """
+        Close the connections
+        TODO
+        """
+        pass 
         
-if __name__ == "__main__":
-    main()
+    def type_exists(self, type_name):
+        """
+        Checks if the current type exists and returns True/False
+        
+        cube = Cube()
+        cube.type_exists('follows')
+        
+        TODO
+        """
+        pass
+        
+    def new_type(self, type_name):
+        """
+        Configures mongo for a new cube type.
+    
+        new_type("growth")
+    
+        Returns True if it worked, False if it failed.
+        """
+        events = "%s_events" % type_name
+        metrics = "%s_metrics" % type_name
+        try:
+            self._conn.create_collection(events)
+            events_coll = self._conn[events]
+            events_coll.create_index('t')
+            self._conn.create_collection(metrics, {'capped': True, 'size': 1e7, 'autoIndexId': True})
+            metrics_coll = self._conn[metrics]
+            metrics_coll.create_index([
+                ("i", pymongo.ASCENDING),
+                ("_id.e", pymongo.ASCENDING),
+                ("_id.l", pymongo.ASCENDING),
+                ("_id.t", pymongo.ASCENDING)
+                ])
+            metrics_coll.create_index([
+                ("i", pymongo.ASCENDING),
+                ("_id.l", pymongo.ASCENDING),
+                ("_id.t", pymongo.ASCENDING)
+                ])
+        except:
+            return False
+        return True
+    
+    def clear_type(self, type_name):
+        """
+        Clears the collections from mongo if they exist.
+        
+        TODO
+        """
+        pass
+   
+    def update(self, data):
+        """
+        Sends the request to cube.
+        
+        TODO: do this without using os.system, or hide the
+        {"status":200} responses.
+        """
+        data = re.sub('"', '\\"', '['+json.dumps(data)+']')
+        os.system('curl -X POST -d "%s" http://localhost:1080/1.0/event/put' % data)

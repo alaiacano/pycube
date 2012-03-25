@@ -12,7 +12,8 @@ We'll probably need to know where mongodb and the cube `node` processes are runn
 
 Each mongodb collection is referred to as a `type`. If you have a log file of a specific action, you're going to need to tell cube about it. I'd like that to work like this:
 
-    import pycube, datetime
+    import pycube
+	cube = pycube.Cube()
 	pycube.create_type('actions')
 	
 ## Logging actions
@@ -21,9 +22,12 @@ Now you want to fill it in. Inserting a new record should go like this:
 
 	action = {
 		'time' : datetime.datetime.now(),
-		'action_type' : 'follow',
-		'action_source' : 'some_url',
+		'type' : 'actions',
+		'data' : {
+			'action_type' : 'follow',
+			'action_source' : 'some_url',
+		},
 	}
-	pycube.update('actions', action)
+	cube.update(action)
 	
 # We'll see how it goes.

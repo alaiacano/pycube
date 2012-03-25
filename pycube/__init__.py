@@ -1,2 +1,1 @@
-from tiers import TIERS
-from config import *
+from cube import *
