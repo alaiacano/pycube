@@ -10,8 +10,11 @@ My goal is to have the page update dynamically based on real time trends. We'll 
 
 First you need to get cube up and running. Follow the instructions [here](https://github.com/square/cube/wiki). For a simple example running on your local machine, you'll need to install everything they suggest, then run these commands:
 
+	git clone https://github.com/square/cube.git
 	cd cube
+	npm install
 	mongod &
+	cat schemas/schema-create.js | mongo
 	node bin/collector.js &
 	node bin/evaluator.js &
 
