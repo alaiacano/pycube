@@ -89,5 +89,5 @@ class Cube(object):
         elif isinstance(data['time'], datetime.datetime) or isinstance(data['time'], datetime.date):
             data['time'] = data['time'].isoformat()
             
-        data = '[%s]' % json.dumps(data)
+        data = re.sub('"', '\\"', '['+json.dumps(data)+']')
         os.system('curl -X POST -d "%s" http://%s:%s/1.0/event/put' % (data, self._host, self._port))
