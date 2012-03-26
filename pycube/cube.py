@@ -3,8 +3,7 @@
 This is a module with tools for putting streaming log data into cube.
 """
 
-import datetime, pymongo
-import os, json, re
+import datetime, pymongo, os, json, re
 
 class Cube(object):
         
@@ -86,9 +85,9 @@ class Cube(object):
             raise Exception("Data object must have 'date' and 'data' fields.")
             
         if not 'time' in data:
-            data['time'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+            data['time'] = datetime.datetime.now().isoformat()
         elif isinstance(data['time'], datetime.datetime) or isinstance(data['time'], datetime.date):
-            data['time'] = data['time'].strftime("%Y-%m-%dT%H:%M:%S")
+            data['time'] = data['time'].isoformat()
             
-        data = re.sub('"', '\\"', '['+json.dumps(data)+']')
+        data = '[%s]' % json.dumps(data)
         os.system('curl -X POST -d "%s" http://%s:%s/1.0/event/put' % (data, self._host, self._port))
