@@ -11,7 +11,7 @@ def parse_actions(line):
     if line[1] != "1":
         return None
     data = {
-        'time'  : (datetime.datetime.fromtimestamp(int(line[0]))+datetime.timedelta(0, 14400)).strftime("%Y-%m-%dT%H:%M:%S"),
+        'time'  : (datetime.datetime.fromtimestamp(int(line[0]))+datetime.timedelta(0, 14400)).isoformat(),
         'data' : {
             'to' : int(line[6]),
         }
@@ -23,7 +23,7 @@ def main():
     Main.
     """
     cube = pycube.Cube()
-    cube.new_type('follows')
+    # cube.new_type('follows')
     while 1:
         line = sys.stdin.readline().strip()
         if line.strip()=="":
