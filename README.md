@@ -54,3 +54,7 @@ Now you want to fill it in with some data. Inserting a new record should goes li
 Check out the [demo.py](https://github.com/alaiacano/pycube/blob/master/demo.py) file. It simply parses a line from stdin, builds the data dict and updates cube. I've been sending data into cube like this:
 
 	tail -f logfile | grep "optional filter" | ./demo.py
+
+## Viewing the graphs
+
+The page will be hosted on `http://localhost:1081/`. See https://github.com/square/cube/wiki/Queries for example queries.
