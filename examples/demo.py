@@ -5,7 +5,7 @@ import pycube
 if __name__ == "__main__":
     cube = pycube.Cube()
     board_name = 'actions'
-    # cube.initialize_cube()
+    cube.initialize_cube()
     if cube.type_exists(board_name):
         cube.clear_type(board_name)
     cube.new_type(board_name)
