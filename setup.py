@@ -6,7 +6,7 @@ setup(name='pycube',
       version='0.0.1',
       description='A python interface to Cube',
       author='Adam Laiacano',
-      author_email='adam@tumblr.com',
+      author_email='adam.laiacano@gmail.com',
       url='http://adamlaiacano.tumblr.com',
       packages=['pycube']
      )
