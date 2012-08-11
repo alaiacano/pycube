@@ -5,10 +5,10 @@ import pycube
 if __name__ == "__main__":
     cube = pycube.Cube()
     board_name = 'actions'
-    cube.initialize_cube()
-    if cube.type_exists(board_name):
-        cube.clear_type(board_name)
-    cube.new_type(board_name)
+    # cube.initialize_cube()
+    # if cube.type_exists(board_name):
+    #     cube.clear_type(board_name)
+    # cube.new_type(board_name)
     
     action_types = ['post', 'like', 'follow', 'follow']
 
@@ -22,4 +22,4 @@ if __name__ == "__main__":
             }
         }
         cube.update(data)
-        time.sleep(.2)
+        time.sleep(random.random())
