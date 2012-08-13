@@ -1,10 +1,6 @@
 # About
 
-The [cube](https://github.com/square/cube/) project is awesome. I would like to create new "boards" with a really simple python call, and I want the boards to show the most in
-
-This project is pretty early in its development. So far I'm able to update the cube data as is described below. The main advantage so far is that you can do any pre-processing or pre-aggregating in python and then launch a new cube collection in a few lines of code.
-
-My goal is to have the page update dynamically based on real time trends. We'll see how it goes. Everything described on the page so far is working for me. I'd love to get any feedback.
+The [cube](https://github.com/square/cube/) project is awesome for displaying aggregations of real-time data. I would like to create new "boards" with a really simple python call, and I want the boards to show the most interesting content in real time. An example could be trending tags/topics on a social network, and instead of just listing the tags it will display a graph of the tag's post frequency for the last minute/hour/day/whatever.
 
 ## Connecting to cube
 
@@ -14,7 +10,6 @@ First you need to get cube up and running. Follow the instructions [here](https:
     cd cube
     npm install
     mongod &
-    cat schema/schema-create.js | mongo
     node bin/collector.js &
     node bin/evaluator.js &
 
@@ -56,7 +51,7 @@ The dict must have the keys 'type' (string) and 'data' (dict). The 'time' key is
 
 Check out the [demo.py](https://github.com/alaiacano/pycube/blob/master/examples/demo.py) file. It just picks random actions and sends them to the collector. You can then go to the cube web interface and start creating boards. 
 
-The [trending_demo.py](https://github.com/alaiacano/pycube/blob/master/examples/trending_demo.py) is still extremely experimental (aka "broken"), but the idea is that it is a second script that will run, and create/update a dashboard with graphs of trending data. An example could be trending tags/topics on a social network, and instead of just listing the terms it will display a graph of the term's post frequency for the last minute/hour/day/whatever. This is ultimately why is project will be worth using. 
+The [trending_demo.py](https://github.com/alaiacano/pycube/blob/master/examples/trending_demo.py) is still extremely experimental (aka "broken"), but the idea is that it is a second script that will run, and create/update a dashboard with graphs of trending data, where you can insert your own definition of "trending".
 
 ## Viewing the graphs
 
