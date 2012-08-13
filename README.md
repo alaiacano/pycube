@@ -1,6 +1,6 @@
 # About
 
-The [cube](https://github.com/square/cube/) project is awesome for displaying aggregations of real-time data. I would like to create new "boards" with a really simple python call, and I want the boards to show the most interesting content in real time. An example could be trending tags/topics on a social network, and instead of just listing the tags it will display a graph of the tag's post frequency for the last minute/hour/day/whatever.
+The [cube](https://github.com/square/cube/) project is awesome for displaying aggregations of real-time data. I would like to create new "boards" with a really simple python call, and I want the boards to show the most interesting content in real time. An example could be trending tags/topics on a social network, and instead of just listing the tags it will display a graph of the tag's post frequency for the last minute/hour/day/whatever. 
 
 ## Connecting to cube
 
@@ -24,7 +24,7 @@ The only dependency that I know of is `pymongo`, which is available through `pip
 
 ## Creating a new `type`
 
-Each mongodb collection is referred to as a `type`. A dashboard can have boards pulling data from multiple types, but I don't generally do that so we'll see how that plays out as this project makes progress. Once you launch the node and mongod processes, 
+Each mongodb collection is referred to as a `type`. A dashboard can have boards pulling data from multiple types, but I don't generally do that so we'll see how that plays out as this project makes progress. Once you launch the node and mongod processes, the actual code to get up and running is simple. 
 
     import pycube
     cube = pycube.Cube()             # the collector is running on 127.0.0.1 by default.
