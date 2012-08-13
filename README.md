@@ -1,6 +1,6 @@
 # About
 
-The [cube](https://github.com/square/cube/) project is awesome. I would like to create and update new boards with a really simple python call.
+The [cube](https://github.com/square/cube/) project is awesome. I would like to create new "boards" with a really simple python call, and I want the boards to show the most in
 
 This project is pretty early in its development. So far I'm able to update the cube data as is described below. The main advantage so far is that you can do any pre-processing or pre-aggregating in python and then launch a new cube collection in a few lines of code.
 
@@ -29,10 +29,11 @@ The only dependency that I know of is `pymongo`, which is available through `pip
 
 ## Creating a new `type`
 
-Each mongodb collection is referred to as a `type`. If you have a log file of a specific action, you're going to need to tell cube about it. This will set up the collections that cube requires and set all of the right indexes.
+Each mongodb collection is referred to as a `type`. A dashboard can have boards pulling data from multiple types, but I don't generally do that so we'll see how that plays out as this project makes progress. Once you launch the node and mongod processes, 
 
     import pycube
     cube = pycube.Cube()             # the collector is running on 127.0.0.1 by default.
+    cube.initalize()                 # set up all of cube's internal collections (collectd, etc)
     cube.new_type('actions')
     
 ## Logging actions
@@ -49,12 +50,12 @@ Now you want to fill it in with some data. Inserting a new record should goes li
     }
     cube.update(action)
 
-## Piping in lots of data
+The dict must have the keys 'type' (string) and 'data' (dict). The 'time' key is optional, and the current time stamp will be used if it is left out.
 
-Check out the [demo.py](https://github.com/alaiacano/pycube/blob/master/demo.py) file. It simply parses a line from stdin, builds the data dict and updates cube. I've been sending data into cube like this:
+## Inserting data
 
-    tail -f logfile | grep "optional filter" | ./demo.py
+Check out the [demo.py](https://github.com/alaiacano/pycube/blob/master/examples/demo.py) file. It just picks random actions and sends them to the collector.
 
 ## Viewing the graphs
 
-The page will be hosted on `http://localhost:1081/`. See https://github.com/square/cube/wiki/Queries for example queries.
+The page will be hosted on `http://localhost:1081/`. See https://github.com/square/cube/wiki/Queries for example queries. More on this later.
