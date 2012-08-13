@@ -38,7 +38,7 @@ Each mongodb collection is referred to as a `type`. A dashboard can have boards 
     
 ## Logging actions
 
-Now you want to fill it in with some data. Inserting a new record should goes like this:
+Now you want to fill it in with some data. Inserting a new record is easy:
 
     action = {
         'time' : datetime.datetime.now(),
@@ -52,9 +52,11 @@ Now you want to fill it in with some data. Inserting a new record should goes li
 
 The dict must have the keys 'type' (string) and 'data' (dict). The 'time' key is optional, and the current time stamp will be used if it is left out.
 
-## Inserting data
+## Examples
 
-Check out the [demo.py](https://github.com/alaiacano/pycube/blob/master/examples/demo.py) file. It just picks random actions and sends them to the collector.
+Check out the [demo.py](https://github.com/alaiacano/pycube/blob/master/examples/demo.py) file. It just picks random actions and sends them to the collector. You can then go to the cube web interface and start creating boards. 
+
+The [trending_demo.py](https://github.com/alaiacano/pycube/blob/master/examples/trending_demo.py) is still extremely experimental (aka "broken"), but the idea is that it is a second script that will run, and create/update a dashboard with graphs of trending data. An example could be trending tags/topics on a social network, and instead of just listing the terms it will display a graph of the term's post frequency for the last minute/hour/day/whatever. This is ultimately why is project will be worth using. 
 
 ## Viewing the graphs
 
