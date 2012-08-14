@@ -92,10 +92,10 @@ class TopEvents(object):
             print "max timestamp", max_timestamp
             print "start of range", max_timestamp-datetime.timedelta(0,self.trend_duration)
             sum1, sum2, sum3, sum4 = self.get_trending(N=4, condition={'t':{'$gte':max_timestamp-datetime.timedelta(0,self.trend_duration)}})
-            trange = 86400000
-            step = 300000
+            trange = 60*60*8*1000
+            step = 20 * 1000
             pieces =  [
-                {   "id" : 1,   "size" : [  9,  4 ],    "position" : [  0,  3 ],    "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum1),     "time" : {  "range" : trange,     "step" : 300000 } },    
+                {   "id" : 1,   "size" : [  9,  4 ],    "position" : [  0,  3 ],    "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum1),     "time" : {  "range" : trange,     "step" : step } },    
                 {   "id" : 2,   "size" : [  9,  4 ],    "position" : [  10,     3 ],    "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum2),   "time" : {  "range" : trange,     "step" : step } },    
                 {   "id" : 3,   "size" : [  9,  4 ],    "position" : [  0,  10 ],   "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum3),   "time" : {  "range" : trange,     "step" : step } },    
                 {   "id" : 4,   "size" : [  9,  4 ],    "position" : [  10,     10 ],   "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum4),   "time" : {  "range" : trange,     "step" : step } },    
