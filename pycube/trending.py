@@ -1,5 +1,5 @@
 import numpy as np
-import pymongo, random, time
+import pymongo, random, time, datetime
 SECOND = 1
 MINUTE = SECOND * 60
 HOUR   = MINUTE * 60
@@ -45,6 +45,8 @@ class TopEvents(object):
         self.type_name = type_name
         self.board_url = board_url
         self.update_duration = update_duration
+        self.trend_variable = trend_variable
+        self.trend_duration = trend_duration
         self.host='127.0.0.1'
         self._conn = pymongo.Connection(self.host).cube_development
         self._build_board()
@@ -63,61 +65,46 @@ class TopEvents(object):
             board_data
         )
 
+    def get_trending(self, N=10, condition=None):
+        """
+        Returns the top N events
+        """
+        key = 'd.%s' % self.trend_variable
+        x = self._conn[self.type_name + '_events'].group(
+            {key : True},                           # key
+            condition,                              # condition
+            {'count' : 0},                          # initial
+            'function (doc, out) { out.count++; }'  # reduce
+            )
+        order = np.argsort([i['count'] for i in x])
+        print[i for i in np.array(x)[order]][-N:][::-1]
+        res = [i['d.%s'%self.trend_variable] for i in np.array(x)[order]]
+        return res[-N:][::-1]
+
     def run(self):
         """
         all testing so far
         """
         print "Your board is up and running at http://%s:1081/%s" % (self.host, self.board_url)
 
-        # every 10 seconds:
-        # * query for all unique events in the last minute
-        # * get unique trend_variables
-        # * aggregate and sort?
-        # update the board with the top 4
-        action_types = ['post', 'like', 'follow', 'follow']
         while 1:
-            sum1, sum2 = random.sample(action_types, 2)
-            pieces = [
-                {
-                    "id" : 1,
-                    "query" : "sum(actions.eq(act,'%s'))" % sum1,
-                    "time" : {
-                        "range" : 1440000,
-                        "step" : 20000
-                    },
-                    "position" : [
-                        20,
-                        3
-                    ],
-                    "type" : "sum",
-                    "id" : 3,
-                    "size" : [
-                        8,
-                        3
-                    ]
-                },
-                {
-                    "id" : 2,
-                    "query" : "sum(actions.eq(act,'%s'))" % sum2,
-                    "time" : {
-                        "range" : 1440000,
-                        "step" : 20000
-                    },
-                    "position" : [
-                        10,
-                        3
-                    ],
-                    "type" : "sum",
-                    "id" : 3,
-                    "size" : [
-                        8,
-                        3
-                    ]
-                },
-                {   "id" : 3,   "size" : [  8,  3 ],    "position" : [  10,     0 ],    "type" : "text",    "content" : sum1 },
-                {   "id" : 4,   "size" : [  8,  3 ],    "position" : [  20,     0 ],    "type" : "text",    "content" : sum2 }
+            max_timestamp = self._conn[self.type_name+'_events'].find({},{'t':1}).sort('t', -1).next()['t']
+            print "max timestamp", max_timestamp
+            print "start of range", max_timestamp-datetime.timedelta(0,self.trend_duration)
+            sum1, sum2, sum3, sum4 = self.get_trending(N=4, condition={'t':{'$gte':max_timestamp-datetime.timedelta(0,self.trend_duration)}})
+            trange = 86400000
+            step = 300000
+            pieces =  [
+                {   "id" : 1,   "size" : [  9,  4 ],    "position" : [  0,  3 ],    "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum1),     "time" : {  "range" : trange,     "step" : 300000 } },    
+                {   "id" : 2,   "size" : [  9,  4 ],    "position" : [  10,     3 ],    "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum2),   "time" : {  "range" : trange,     "step" : step } },    
+                {   "id" : 3,   "size" : [  9,  4 ],    "position" : [  0,  10 ],   "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum3),   "time" : {  "range" : trange,     "step" : step } },    
+                {   "id" : 4,   "size" : [  9,  4 ],    "position" : [  10,     10 ],   "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum4),   "time" : {  "range" : trange,     "step" : step } },    
+                {   "id" : 5,   "size" : [  7,  3 ],    "position" : [  0,  0 ],    "type" : "text",    "content" : sum1 },     
+                {   "id" : 6,   "size" : [  8,  3 ],    "position" : [  10,     0 ],    "type" : "text",    "content" : sum2 },     
+                {   "id" : 7,   "size" : [  8,  3 ],    "position" : [  0,  7 ],    "type" : "text",    "content" : sum3 },     
+                {   "id" : 8,   "size" : [  8,  3 ],    "position" : [  10,     7 ],    "type" : "text",    "content" : sum4 } 
             ]
-            print pieces
+
             self._conn.boards.update(
                 {'_id' : self.board_id},
                 {'pieces' : pieces}
