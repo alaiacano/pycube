@@ -4,6 +4,7 @@ This is a module with tools for putting streaming log data into cube.
 """
 
 import datetime, pymongo, os, json, re
+import httplib, urllib
 
 class Cube(object):
         
@@ -16,7 +17,7 @@ class Cube(object):
         self._conn = pymongo.Connection(self._host).cube_development
 
         self.dashboard_url = "http://%s:1081" % self._host
-
+        self.__cache = []
         
 
     def __del__(self):
@@ -110,5 +111,11 @@ class Cube(object):
         elif isinstance(data['time'], datetime.datetime) or isinstance(data['time'], datetime.date):
             data['time'] = data['time'].isoformat()
             
-        data = re.sub('"', '\\"', '['+json.dumps(data)+']')
-        os.system('curl -X POST -d "%s" http://%s:%s/1.0/event/put' % (data, self._host, self._port))
+        data = '[' + json.dumps(data) + ']'
+
+        try:
+            conn = httplib.HTTPConnection('%s:%s' % (self._host, self._port))
+            conn.request("POST", "/1.0/event/put", data)
+            response = conn.getresponse()
+        except:
+            print "failed request"
