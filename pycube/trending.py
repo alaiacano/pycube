@@ -6,11 +6,83 @@ HOUR   = MINUTE * 60
 DAY    = HOUR * 24
 MONTH  = DAY * 30
 
+
+def plot_grid(N):
+    """
+    Returns the coordinates for a plot grid, both the plot itself and the 
+    text label.
+
+    Inputs
+    ------
+    N - int
+        Number of plots. Maximum number of plots is currently 4.
+
+    Outputs
+    -------
+    
+    """
+    if N > 4:
+        N = 4
+    if N < 1:
+        N = 1
+
+    if N == 1:
+        grid = [{
+            "area" : {"size" : [  22,     9 ],    "position" : [  0,  3 ]},
+            "text" : {"size" : [  8,  3 ],    "position" : [  6,  0 ]}
+        }]
+    elif N == 2:
+        grid = [
+            {
+                "area" : {"size" : [  13,     8 ],    "position" : [  0,  3 ]},
+                "text" : {"size" : [  8,  3 ],    "position" : [  0,  0 ]}
+            },
+            {
+                "area" : {"size" : [  13,     8 ],    "position" : [  13,     3 ]},
+                "text" : {"size" : [  8,  3 ],    "position" : [  13,     0 ]}
+            }
+        ]
+    elif N == 3:
+        grid = [
+            {
+                "area" : {"size" : [  13,     6 ],    "position" : [  0,  3 ]},
+                "text" : {"size" : [  8,  3 ],    "position" : [  0,  0 ]}
+            },
+            {
+                "area" : {"size" : [  13,     6 ],    "position" : [  13,     3 ]},
+                "text" : {"size" : [  8,  3 ],    "position" : [  13,     0 ]}
+            },
+            {
+                "area" : {"size" : [  13,     6 ],    "position" : [  0,  12 ]},
+                "text" : {"size" : [  8,  3 ],    "position" : [  0,  9 ]},
+            }
+        ]
+    elif N == 4:
+        grid = [
+            {
+                "area" : {"size" : [  13,     6 ],    "position" : [  0,  3 ]},
+                "text" : {"size" : [  8,  3 ],    "position" : [  0,  0 ]}
+            },
+            {
+                "area" : {"size" : [  13,     6 ],    "position" : [  13,     3 ]},
+                "text" : {"size" : [  8,  3 ],    "position" : [  13,     0 ]}
+            },
+            {
+                "area" : {"size" : [  13,     6 ],    "position" : [  0,  12 ]},
+                "text" : {"size" : [  8,  3 ],    "position" : [  0,  9 ]},
+            },
+            {
+                "area" : {"size" : [  13,     6 ], "position" : [ 13, 12]},
+                "text" : {"size" : [  8,  3 ], "position" : [13, 9]}
+            }
+        ]
+    return grid
+
 class TopEvents(object):
     """
     Updates a board with the top events.
     """
-    def __init__(self, type_name, board_url, trend_variable, trend_duration = 60, update_duration = 10):
+    def __init__(self, type_name, board_url, trend_variable, plots = 4, trend_duration = 60, update_duration = 10):
         """
         Creates a board with the given url.
 
@@ -50,6 +122,7 @@ class TopEvents(object):
         self.host='127.0.0.1'
         self._conn = pymongo.Connection(self.host).cube_development
         self._build_board()
+        self.plots = plots
 
 
     def _build_board(self):
@@ -91,19 +164,44 @@ class TopEvents(object):
             max_timestamp = self._conn[self.type_name+'_events'].find({},{'t':1}).sort('t', -1).next()['t']
             print "max timestamp", max_timestamp
             print "start of range", max_timestamp-datetime.timedelta(0,self.trend_duration)
-            sum1, sum2, sum3, sum4 = self.get_trending(N=4, condition={'t':{'$gte':max_timestamp-datetime.timedelta(0,self.trend_duration)}})
+            
+            trends = self.get_trending(N=4, condition={'t':{'$gte':max_timestamp-datetime.timedelta(0,self.trend_duration)}})
+            
             trange = 60*60*8*1000
             step = 20 * 1000
-            pieces =  [
-                {   "id" : 1,   "size" : [  9,  4 ],    "position" : [  0,  3 ],    "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum1),     "time" : {  "range" : trange,     "step" : step } },    
-                {   "id" : 2,   "size" : [  9,  4 ],    "position" : [  10,     3 ],    "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum2),   "time" : {  "range" : trange,     "step" : step } },    
-                {   "id" : 3,   "size" : [  9,  4 ],    "position" : [  0,  10 ],   "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum3),   "time" : {  "range" : trange,     "step" : step } },    
-                {   "id" : 4,   "size" : [  9,  4 ],    "position" : [  10,     10 ],   "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum4),   "time" : {  "range" : trange,     "step" : step } },    
-                {   "id" : 5,   "size" : [  7,  3 ],    "position" : [  0,  0 ],    "type" : "text",    "content" : sum1 },     
-                {   "id" : 6,   "size" : [  8,  3 ],    "position" : [  10,     0 ],    "type" : "text",    "content" : sum2 },     
-                {   "id" : 7,   "size" : [  8,  3 ],    "position" : [  0,  7 ],    "type" : "text",    "content" : sum3 },     
-                {   "id" : 8,   "size" : [  8,  3 ],    "position" : [  10,     7 ],    "type" : "text",    "content" : sum4 } 
-            ]
+
+            pieces = []
+            for i, panel in enumerate(plot_grid(self.plots)):
+                piece = {
+                    "id" : i*2+1,
+                    "size" : panel['text']['size'],
+                    "position" : panel['text']['position'],
+                    "type" : "text",
+                    "content" : trends[i],
+                    "time" : {  "range" : trange,     "step" : step }
+                }
+                pieces.append(piece)
+
+                piece = {
+                    "id" : i*2+2,
+                    "size" : panel['area']['size'],
+                    "position" : panel['area']['position'],
+                    "type" : "area",
+                    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, trends[i]),
+                    "time" : {  "range" : trange,     "step" : step }
+                }
+                pieces.append(piece)
+
+            # pieces =  [
+            #     {   "id" : 1,   "size" : [  9,  4 ],    "position" : [  0,  3 ],    "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum1),      },    
+            #     {   "id" : 2,   "size" : [  9,  4 ],    "position" : [  10,     3 ],    "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum2),   "time" : {  "range" : trange,     "step" : step } },    
+            #     {   "id" : 3,   "size" : [  9,  4 ],    "position" : [  0,  10 ],   "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum3),   "time" : {  "range" : trange,     "step" : step } },    
+            #     {   "id" : 4,   "size" : [  9,  4 ],    "position" : [  10,     10 ],   "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum4),   "time" : {  "range" : trange,     "step" : step } },    
+            #     {   "id" : 5,   "size" : [  7,  3 ],    "position" : [  0,  0 ],    "type" : "text",    "content" : sum1 },     
+            #     {   "id" : 6,   "size" : [  8,  3 ],    "position" : [  10,     0 ],    "type" : "text",    "content" : sum2 },     
+            #     {   "id" : 7,   "size" : [  8,  3 ],    "position" : [  0,  7 ],    "type" : "text",    "content" : sum3 },     
+            #     {   "id" : 8,   "size" : [  8,  3 ],    "position" : [  10,     7 ],    "type" : "text",    "content" : sum4 } 
+            # ]
 
             self._conn.boards.update(
                 {'_id' : self.board_id},
