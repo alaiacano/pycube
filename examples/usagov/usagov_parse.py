@@ -1,34 +1,45 @@
 import pycube
+# import pycurl
 import urllib2
 import json
 import re
+import datetime
 
 if __name__ == "__main__":
 
     cube = pycube.Cube()
 
-    stream = urllib2.urlopen('http://developer.usa.gov/1usagov')
+    req = urllib2.Request('http://developer.usa.gov/1usagov')
+    req.add_header('Accept', 'application/json')
+    req.add_header("Content-type", "application/x-www-form-urlencoded")
+
+    stream = urllib2.urlopen(req)
 
     for click in stream:
-        click = json.loads(click)
+        print click
+        # click = json.loads(click)
 
-        # skip the heartbeats
-        if 'heartbeat' in click.keys():
-            continue
+        # # skip the heartbeats
+        # if '_heartbeat_' in click.keys():
+        #     print '_heartbeat_'
+        #     continue
 
-        try:
-            domain = re.search(r'\.([^\.]+\.(gov|mil))', click['u']).group(1)
-        except:
-            print click['u']
-            continue
+        # try:
+        #     domain = re.search(r'\.([^\.]+\.(gov|mil))', click['u']).group(1)
+        # except:
+        #     print click['u']
+        #     continue
 
-        timestamp = datetime.datetime.fromtimestamp(int(click['t'])) 
-        timestamp += datetime.timedelta(hours=4)   # timezone issue to be fixed.
+        # print domain
 
-        data = {
-            'time': timestamp,
-            'data': {
-                'u': domain
-            }
-        }
-        cube.update(data)
+        # timestamp = datetime.datetime.fromtimestamp(int(click['t']))
+        # timestamp += datetime.timedelta(hours=4)   # timezone issue to be fixed.
+
+        # data = {
+        #     'time': timestamp,
+        #     'type': 'domains',
+        #     'data': {
+        #         'u': domain
+        #     }
+        # }
+        # cube.update(data)
