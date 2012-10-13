@@ -33,7 +33,8 @@ The clickstream is located at http://developer.usa.gov/1usagov and the data look
     u'r': u'http://www.facebook.com/',
     u't': 1348951865,
     u'tz': u'America/New_York',
-    u'u': u'http://www.army.mil/article/87806/Working_dog_reunites_with_handler_during_bedside_hospital_visit/'}
+    u'u': u'http://www.army.mil/article/87806/Working_dog_reunites_with_handler_during_bedside_hospital_visit/'
+}
 ```
 
-The `usagov_parse.py` file consumes the clickstream and feeds it into cube. The 
+The `usagov_parse.py` file consumes the clickstream and feeds it into cube.
