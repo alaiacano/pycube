@@ -150,7 +150,6 @@ class TopEvents(object):
             'function (doc, out) { out.count++; }'  # reduce
             )
         order = np.argsort([i['count'] for i in x])
-        print[i for i in np.array(x)[order]][-N:][::-1]
         res = [i['d.%s'%self.trend_variable] for i in np.array(x)[order]]
         return res[-N:][::-1]
 
@@ -162,11 +161,9 @@ class TopEvents(object):
 
         while 1:
             max_timestamp = self._conn[self.type_name+'_events'].find({},{'t':1}).sort('t', -1).next()['t']
-            print "max timestamp", max_timestamp
-            print "start of range", max_timestamp-datetime.timedelta(0,self.trend_duration)
-            
-            trends = self.get_trending(N=4, condition={'t':{'$gte':max_timestamp-datetime.timedelta(0,self.trend_duration)}})
-            
+
+            trends = self.get_trending(N=self.plots, condition={'t': {'$gte': max_timestamp - datetime.timedelta(0, self.trend_duration)}})
+
             trange = 60*60*8*1000
             step = 20 * 1000
 
@@ -194,20 +191,9 @@ class TopEvents(object):
                 }
                 pieces.append(piece)
 
-            # pieces =  [
-            #     {   "id" : 1,   "size" : [  9,  4 ],    "position" : [  0,  3 ],    "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum1),      },    
-            #     {   "id" : 2,   "size" : [  9,  4 ],    "position" : [  10,     3 ],    "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum2),   "time" : {  "range" : trange,     "step" : step } },    
-            #     {   "id" : 3,   "size" : [  9,  4 ],    "position" : [  0,  10 ],   "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum3),   "time" : {  "range" : trange,     "step" : step } },    
-            #     {   "id" : 4,   "size" : [  9,  4 ],    "position" : [  10,     10 ],   "type" : "area",    "query" : "sum(%s.eq(%s,'%s'))" % (self.type_name, self.trend_variable, sum4),   "time" : {  "range" : trange,     "step" : step } },    
-            #     {   "id" : 5,   "size" : [  7,  3 ],    "position" : [  0,  0 ],    "type" : "text",    "content" : sum1 },     
-            #     {   "id" : 6,   "size" : [  8,  3 ],    "position" : [  10,     0 ],    "type" : "text",    "content" : sum2 },     
-            #     {   "id" : 7,   "size" : [  8,  3 ],    "position" : [  0,  7 ],    "type" : "text",    "content" : sum3 },     
-            #     {   "id" : 8,   "size" : [  8,  3 ],    "position" : [  10,     7 ],    "type" : "text",    "content" : sum4 } 
-            # ]
-
             self._conn.boards.update(
-                {'_id' : self.board_id},
-                {'pieces' : pieces}
+                {'_id': self.board_id},
+                {'pieces': pieces}
             )
             time.sleep(self.update_duration)
 
