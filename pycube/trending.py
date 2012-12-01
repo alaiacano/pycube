@@ -172,6 +172,8 @@ class TopEvents(object):
 
             pieces = []
             for i, panel in enumerate(plot_grid(self.plots)):
+                if i >= len(trends):
+                    break
                 piece = {
                     "id" : i*2+1,
                     "size" : panel['text']['size'],
