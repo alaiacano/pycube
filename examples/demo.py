@@ -34,7 +34,7 @@ if __name__ == "__main__":
         # add to cube
         data = {
             'type' : board_name,
-            'time' : datetime.datetime.fromtimestamp(click['hc']),
+            'time' : datetime.datetime.fromtimestamp(click['hc']) + datetime.timedelta(hours=4),
             'data' : click
         }
         cube.update(data)
