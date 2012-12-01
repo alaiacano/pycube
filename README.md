@@ -15,9 +15,12 @@ First you need to get cube up and running. Follow the instructions [here](https:
 
 ## Installing pycube
 
-The only dependency that I know of is `pymongo`, which is available through `pip`.
+I've had this up and working under python2.6 and 2.7.
+
+The only dependency that I know of is `pymongo`, which is available through `pip`. The `1.usa.gov` example also requires `requests`.
 
     sudo pip install pymongo
+    sudo pip install requests
     git clone git@github.com:alaiacano/pycube.git
     cd pycube
     sudo python setup.py install
