@@ -29,7 +29,7 @@ if __name__ == "__main__":
             continue
 
         # Extract the domain of the url
-        click["d"] = re.sub('https?://(.+\.gov)/.+', '\\1', click['u'])
+        click["d"] = re.sub('https?://.*\.(.+\.(gov|mil))(/.+)', '\\1', click['u'])
 
         # add to cube
         data = {
