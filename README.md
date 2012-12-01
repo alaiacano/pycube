@@ -49,9 +49,13 @@ The dict must have the keys 'type' (string) and 'data' (dict). The 'time' key is
 
 ## Examples
 
-Check out the [demo.py](https://github.com/alaiacano/pycube/blob/master/examples/demo.py) file. It just picks random actions and sends them to the collector. You can then go to the cube web interface and start creating boards. 
+Check out the [demo.py](https://github.com/alaiacano/pycube/blob/master/examples/demo.py) file. Loads the [1.usa.gov clickstream](http://www.usa.gov/About/developer-resources/1usagov.shtml) and puts the data into cube.
 
-The [trending_demo.py](https://github.com/alaiacano/pycube/blob/master/examples/trending_demo.py) is still extremely experimental (aka "broken"), but the idea is that it is a second script that will run, and create/update a dashboard with graphs of trending data, where you can insert your own definition of "trending".
+Then run the [trending_demo.py](https://github.com/alaiacano/pycube/blob/master/examples/trending_demo.py) to launch cube with the trending info.
+
+The demo uses some pretty sparse data, but the output will look something like this:
+
+![](https://github.com/alaiacano/pycube/blob/master/examples/usagov.png?raw=true)
 
 ## Viewing the graphs
 
