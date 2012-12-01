@@ -11,6 +11,7 @@ if __name__ == "__main__":
     cube = pycube.Cube()
     board_name = 'usagov'
 
+    cube.initialize_cube()
     cube.clear_type(board_name)
     cube.new_type(board_name)
 
